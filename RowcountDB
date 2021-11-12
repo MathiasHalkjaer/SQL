@@ -1,0 +1,16 @@
+SELECT
+      QUOTENAME(SCHEMA_NAME(sysObject.schema_id)) + '.' + QUOTENAME(sysObject.name) AS [TableName]
+      , SUM(sysPartition.Rows) AS [RowCount]
+FROM 
+      sys.objects AS sysObject
+      INNER JOIN sys.partitions AS sysPartition
+            ON sysObject.object_id = sysPartition.object_id
+WHERE
+      sysObject.type = 'U'
+      AND sysObject.is_ms_shipped = 0x0
+      AND index_id < 2 -- 0:Heap, 1:Clustered
+GROUP BY 
+      sysObject.schema_id
+      , sysObject.name
+ORDER BY [TableName]
+GO
